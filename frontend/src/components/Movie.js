@@ -68,8 +68,26 @@ const Movie = () => {
     checkWatchlist();
   }, [id, profileId]);
 
-  const handlePlayButtonClick = () => {
-    navigate(`/video/${encodeURIComponent(movieData.videoPath)}`);
+  const handlePlayButtonClick = async () => {
+    try {
+      // Check if the current user has completed payment
+      const paymentResponse = await axios.get(`http://localhost:8800/checkPayment/${currentUser.id}`, {
+        withCredentials: true,
+      });
+
+      const hasPayment = paymentResponse.data.hasPayment;
+
+      if (hasPayment) {
+        // User has completed payment, navigate to play page
+        navigate(`/video/${encodeURIComponent(movieData.videoPath)}`);
+        console.log("naveen",setMovieData.title)
+      } else {
+        // User hasn't completed payment, navigate to plans page
+        navigate('/plans');
+      }
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+    }
   };
 
   const handleToggleWatchlist = async () => {

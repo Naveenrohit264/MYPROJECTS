@@ -226,11 +226,11 @@ app.post("/signup", async (req, res) => {
 const MAX_DEVICE_LIMIT = 3; 
 
 app.post("/signin", async (req, res) => {
-  const { email, password } = req.body;
+  const { identifier, password } = req.body;
 
   try {
-    const FIND_USER_QUERY = "SELECT * FROM users WHERE email = ?";
-    connection.query(FIND_USER_QUERY, [email], async (err, results) => {
+    const FIND_USER_QUERY = "SELECT * FROM users WHERE email = ? OR mobile = ?";
+    connection.query(FIND_USER_QUERY, [identifier, identifier], async (err, results) => {
       if (err) {
         console.error("Error finding user:", err);
         return res
@@ -796,44 +796,63 @@ app.post("/logout", (req, res) => {
   res.status(200).json({ message: "User has been logged out." });
 });
 
+
+const fs = require("fs");
+const unzipper = require("unzipper");
+
 app.post(
   "/upload",
-  upload.fields([{ name: "video" }, { name: "image" }]),
+  upload.fields([{ name: "zip" }, { name: "image" }]),
   (req, res) => {
-    const videoPath = req.files["video"][0].path;
+    const zipPath = req.files["zip"][0].path;
     const imagePath = req.files["image"][0].path;
-    const { title, description, scheduledTime, genre, categories, ageRating } =
-      req.body;
+    const { title, description, scheduledTime, genre, categories, ageRating } = req.body;
 
-    const insertQuery = `
-    INSERT INTO uploads
-    (video_path, image_path, title, description, scheduled_time, upload_time, genre_id, categories, age_rating)
-    VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?)
-  `;
-    connection.query(
-      insertQuery,
-      [
-        videoPath,
-        imagePath,
-        title,
-        description,
-        scheduledTime,
-        genre,
-        categories,
-        ageRating,
-      ],
-      (err, result) => {
-        if (err) {
-          console.log(err);
-          return res
-            .status(500)
-            .send("Error uploading files and saving data to the database.");
+    // Extracting .m3u8 and .ts files from the zip
+    fs.createReadStream(zipPath)
+      .pipe(unzipper.Parse())
+      .on("entry", function (entry) {
+        const fileName = entry.path;
+        const fileType = fileName.split('.').pop().toLowerCase(); // Extract file extension
+
+        if (fileType === "m3u8" || fileType === "ts") {
+          // Extracting the .m3u8 and .ts files
+          entry.pipe(fs.createWriteStream("uploads/" + fileName));
         }
 
-        // Send response containing the image path for use in FileUpload.js
-        return res.status(200).json({ imagePath: imagePath });
-      }
-    );
+        if (fileType === "m3u8") {
+          // Setting the video path to the extracted .m3u8 file
+          const videoPath = "uploads/" + fileName;
+
+          const insertQuery = `
+            INSERT INTO uploads
+            (video_path, image_path, title, description, scheduled_time, upload_time, genre_id, categories, age_rating)
+            VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?)
+          `;
+          connection.query(
+            insertQuery,
+            [
+              videoPath,
+              imagePath,
+              title,
+              description,
+              scheduledTime,
+              genre,
+              categories,
+              ageRating,
+            ],
+            (err, result) => {
+              if (err) {
+                console.error("Error uploading files and saving data:", err);
+                return res.status(500).json({ error: "Error uploading files and saving data to the database." });
+              }
+
+              // Send response containing the image path for use in FileUpload.js
+              return res.status(200).json({ imagePath: imagePath });
+            }
+          );
+        }
+      });
   }
 );
 
@@ -1386,6 +1405,29 @@ app.get('/usernames', (req, res) => {
 });
 
 
+app.post('/savePayment', (req, res) => {
+  try {
+    const { userId, amount } = req.body;
+
+    // Insert payment details into the 'payments' table
+    const insertQuery = 'INSERT INTO payments (userId, amount) VALUES (?, ?)';
+    const values = [userId, amount];
+
+    connection.query(insertQuery, values, (error, results) => {
+      if (error) {
+        console.error('Error inserting payment details:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+      } else {
+        console.log('Payment details saved successfully');
+        res.status(200).json({ success: true });
+      }
+    });
+  } catch (error) {
+    console.error('Error saving payment details:', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
 
 app.get('/child/watchlist/:profileId', checkUserToken, (req, res) => {
   const profileId = req.params.profileId;
@@ -1507,6 +1549,30 @@ app.get('/users', (req, res) => {
 });
 
 
+
+app.get('/checkPayment/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Query the database to check if the user has completed the payment
+    const checkPaymentQuery = 'SELECT * FROM payments WHERE userId = ?';
+    const checkPaymentValues = [userId];
+
+    connection.query(checkPaymentQuery, checkPaymentValues, (error, results) => {
+      if (error) {
+        console.error('Error checking payment status:', error);
+        res.status(500).json({ hasPayment: false });
+      } else {
+        // Check if there is a payment record for the user
+        const hasPayment = results.length > 0;
+        res.json({ hasPayment });
+      }
+    });
+  } catch (error) {
+    console.error('Error checking payment status:', error);
+    res.status(500).json({ hasPayment: false });
+  }
+});
 
 
 

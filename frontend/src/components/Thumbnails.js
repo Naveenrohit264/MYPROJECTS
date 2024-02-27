@@ -272,7 +272,7 @@ const Thumbnails = ({ profileId }) => {
                       textDecoration: "none",
                     }}
                   >
-                    Explore All 
+                    Explore All >
                   </p>
                 </div>
               )}

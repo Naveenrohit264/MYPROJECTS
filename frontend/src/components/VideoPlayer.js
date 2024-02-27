@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Typography from "@material-ui/core/Typography";
-import ReactPlayer from "react-player";
+import ReactPlayer from 'react-player/lazy';
+
 import axios from "axios";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Slider from "@material-ui/core/Slider";
@@ -170,6 +171,7 @@ function VideoPlayer() {
   const{videoPath} = useParams();
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  
   
   console.log("Video path in VideoPlayer:", videoPath); 
 
@@ -362,28 +364,39 @@ function VideoPlayer() {
           ref={playerContainerRef}
           className={classes.playerWrapper}
         >
-          <ReactPlayer
-            ref={playerRef}
-            width="100%"
-            height="100%"
-            url={`http://localhost:8800/${videoPath}`}
-            pip={pip}
-            playing={playing}
-            controls={false}
-            light={light}
-            loop={loop}
-            playbackRate={playbackRate}
-            volume={volume}
-            muted={muted}
-            onProgress={handleProgress}
-            config={{
-              file: { 
-                attributes: {
-                  crossOrigin: "anonymous",
-                },
-              },
-            }}
-          />
+       <ReactPlayer
+  ref={playerRef}
+  width="100%"
+  height="100%"
+  url={`http://localhost:8800/${videoPath}`}  // Correct URL with .m3u8 extension
+  pip={pip}
+  playing={state.playing}
+  controls={false}
+  light={light}
+  loop={loop}
+  playbackRate={playbackRate}
+  volume={volume}
+  muted={muted}
+ 
+  onProgress={handleProgress}
+  config={{
+    file: {
+      attributes: {
+        crossOrigin: "use-credentials", // or "anonymous"
+      },
+      hlsOptions: {
+        // Additional options for HLS playback
+        xhrSetup: (xhr, url) => {
+          // You can add custom headers if needed
+          xhr.setRequestHeader('Authorization', 'Bearer your_token');
+        },
+      },
+    },
+  }}
+  onError={(error) => console.error('Player error:', error)}
+/>
+
+
 
           <Controls
             ref={controlsRef}
@@ -420,6 +433,3 @@ function VideoPlayer() {
   );
 }
 export default VideoPlayer;
-
-
-        

@@ -76,7 +76,7 @@ const ChildThumbnails = () => {
                     </div>
                     <div className={styles.content}>
                       <h2>{movie.title}</h2>
-                      <p style={{ color:"white"}}>{movie.description}</p>
+                      <p>{movie.description}</p>
                       <button className={styles.playButton}>Play</button>
                     </div>
                   </div>

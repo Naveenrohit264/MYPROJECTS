@@ -6,7 +6,7 @@ import RealmLogo from "./RealmLogo";
 
 const Login = () => {
   const [inputs, setInputs] = useState({
-    email: "",
+    identifier: "",
     password: "",
   });
   const [err, setErr] = useState(null);
@@ -21,23 +21,30 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
+  
     try {
       await login(inputs);
-
-      if (inputs.email === "uploader@gmail.com") {
+  
+      // Assuming "uploader@gmail.com" is the email of the admin
+      if (inputs.identifier === "uploader@gmail.com") {
         navigate("/admin");
       } else {
         navigate("/profiles");
       }
-
     } catch (err) {
       console.error(err);
       setErr(err.response?.data?.message || "An error occurred");
     } finally {
+      // Move setTimeout outside of the try block
+      setTimeout(() => {
+        setErr(null);
+      }, 2000);
+  
       setIsLoading(false);
     }
   };
+  
+  
 
   return (
     <div>
@@ -50,9 +57,9 @@ const Login = () => {
             <form onSubmit={handleLogin}>
               <input
                 type="text"
-                placeholder="Email"
-                name="email"
-                value={inputs.email}
+                placeholder="Email or Mobile Number"
+                name="identifier"
+                value={inputs.identifier}
                 onChange={handleChange}
               />
 
@@ -70,11 +77,11 @@ const Login = () => {
                 <button type="submit" disabled={isLoading}>
                   {isLoading ? 'Logging in...' : 'Login'}
                 </button>
-                <Link to="/forgotpassword" className={styles["forgot-password-link"]}>
-                  Forgot Password?
-                </Link>
-              </div>
-              
+                 <Link to="/forgotpassword" className={styles["forgot-password-link"]}>
+  Forgot Password?
+</Link>
+</div>
+             
               <div className={styles["new-user"]}>
                 <span>New User?</span>
                 <Link to="/register">

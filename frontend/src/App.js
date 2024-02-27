@@ -12,6 +12,7 @@ import {
 
 import "./App.css";
 import { useContext,useEffect } from "react";
+import SuccessMessage from "./components/SuccessMessage";
 import { AuthContext } from "./context/authContext";
 import Register from "./components/Register";
 import AddProfile from "./components/AddProfile";
@@ -42,9 +43,23 @@ import ChildHome from "./components/ChildHome";
 import ChildMovies from "./components/ChildMovies";
 import ChildSearch from "./components/ChildSearch";
 import Test from "./components/Test";
+import Plan1 from "./components/Plan1";
+import Plan2 from "./components/Plan2";
+import Plan3 from "./components/Plan3";
+import Plan4 from "./components/Plan4";
+import Plans from "./components/Plans";
+import PaymentPage from "./components/PaymentPage";
+import ChildPlan1 from "./components/ChildPlan1";
+import ChildPlan2 from "./components/ChildPlan2";
+import ChildPlan3 from "./components/ChildPlan3";
+import ChildPlan4 from "./components/ChildPlan4";
+import ChildPlans from "./components/ChildPlans";
+import ChildSuccessMessage from "./components/ChildSuccessMessage";
+import ChildPayment from "./components/ChildPayment";
 import ChildMovie from "./components/ChildMovie";
 import ChildHoverVideo from "./components/ChildHoverVideo";
 import ChildHoverplayer from "./components/ChildHoverplayer";
+import LoginWithOtp from "./components/LoginWithOtp";
 
 
 function App() {
@@ -109,6 +124,11 @@ function App() {
       element: <Test />,
     },
     {
+      path: "/loginwithotp",
+      element: <LoginWithOtp />,
+    },
+
+    {
       path: '/pin/:profileId/',
       element: <PinPage />,
     },
@@ -128,6 +148,7 @@ function App() {
       path: "/realmlogo",
       element: <RealmLogo />,
     },
+   
     {
       path: "/forgotpassword",
       element: (
@@ -136,8 +157,6 @@ function App() {
         </RedirectIfLoggedIn>
       ),
     },
-
-   
 
 
 
@@ -177,11 +196,44 @@ function App() {
           element: <ChildWatchlistVideos />,
         },
 
+        {
+          path: "/success",
+          element: <SuccessMessage />,
+        },
+
 
         {
           path: "/Home",
           element: <Home/>,
         },
+        {
+          path: "/plans",
+          element: <Plans />,
+        },
+        {
+          path: "/plan1",
+          element: <Plan1 />,
+        },
+        {
+          path: "/plan2",
+          element: <Plan2 />,
+        },
+        {
+          path: "/plan3",
+          element: <Plan3 />,
+        },
+        {
+          path: "/plan4",
+          element: <Plan4 />,
+        },
+        {
+          path: "/pay/:price",
+          element: <PaymentPage />,
+        },
+        
+        
+        
+       
         
        
         {
@@ -222,6 +274,36 @@ function App() {
         {
           path: "/ChildHome",
           element: <ChildHome/>,
+        },
+        {
+          path: "/ChildPlans",
+          element: <ChildPlans/>,
+        },
+        
+        {
+          path: "/Childplan1",
+          element: <ChildPlan1/>,
+        },
+       
+        {
+          path: "/Childplan2",
+          element: <ChildPlan2/>,
+        },
+        {
+          path: "/Childplan3",
+          element: <ChildPlan3/>,
+        },
+        {
+          path: "/Childplan4",
+          element: <ChildPlan4/>,
+        },
+        {
+          path: "/ChildSuccessMessage",
+          element: <ChildSuccessMessage/>,
+        },
+        {
+          path: "/ChildPayment/:price",
+          element: <ChildPayment/>,
         },
         {
           path: "/childmovie/:id",
